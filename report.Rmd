@@ -1,5 +1,5 @@
 ---
-title: "House Prediction Project"
+title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output: html_document
@@ -13,7 +13,9 @@ Buying a house is one of the largest financial decisions many people will make. 
 
 ## Data Description
 
-We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The dataset contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. Given the geography dependent nature of home value, the results of below analyses can't be applied nationally. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques. 
+We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The dataset contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. Given the geography dependent nature of home value, the results of below analyses can't be applied nationally. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
+
+See the codebook.txt file in the github repo for complete information about all variables.
 
 ## Exploratory Analysis
 
