@@ -3,6 +3,8 @@ title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output:
+  pdf_document:
+    toc: true
   rmdformats::readthedown:
     highlight: kate
 ---
