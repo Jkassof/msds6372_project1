@@ -46,7 +46,7 @@ Comments on various things noticed as exloring the data and general idea of what
 
 # Questions of Interest
 
-We focused on two approaches, one geared towards finding the most performant model we could and one towards finding the most interpretable model we could. 
+We focused on two approaches, one geared towards model performance and one towards model interpretability by a real estate agent.
 
 ## Interpretable Models
 
