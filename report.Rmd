@@ -2,62 +2,71 @@
 title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
-output: html_document
+output:
+  rmdformats::readthedown:
+    highlight: kate
 ---
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+               cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
 
 ***
 
-## Introduction
+# Introduction
 
 Buying a house is one of the largest financial decisions many people will make. So many factors go into someone's decision, but it can be hard to really explain why one house "felt right" and another didn't. We want to quantify the factors that add up to someone making the decision to purchase a house.
 
-## Data Description
+# Data Description
 
 We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The dataset contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. Given the geography dependent nature of home value, the results of below analyses can't be applied nationally. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
 
 See the codebook.txt file in the github repo for complete information about all variables.
 
-## Exploratory Analysis
+# Exploratory Analysis
 
-First, let's read our data into our R session and take a look at the explanatory variables in the training dataset.
-
-```{r read}
-suppressPackageStartupMessages({
-library(skimr)
-library(dplyr)
-library(knitr)
-})
-ames <- read.csv('data/train1.csv')
-skim_to_wide(ames) %>%
-  select(type, variable, missing, n, top_counts, mean, sd, median, hist) %>%
-  kable()
-```
+Comments on various things noticed as exloring the data and general idea of what the cleaning was. Reference appendix for entire cleaninf functions and scripts.
 
 
+# Questions of Interest
 
-## Questions of Interest
+We focused on two approaches, one geared towards finding the most performant model we could and one towards finding the most interpretable model we could. 
 
-### Interpretable Models
+## Interpretable Models
 
 Restatement of problem here
 
-#### Model Selection
+### Model Selection
 
 Type of Selection
 Assumptions
 Optional Comparing Competing Models
 
-#### Parameter Interpretation
+### Parameter Interpretation
 
 Interpretation
 Confidence Intervals
 
 
-### Predictive Models
+## Predictive Models
 
 Restatement of problem here
 
-#### Model Selection
+### Model Selection
 
 Type of Selection
 Assumptions
@@ -68,7 +77,7 @@ Comparing Competing Models
     Kaggle Score
     
     
-## Conclusion
+# Conclusion
 
-## Appendix
+# Appendix
 
