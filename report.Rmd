@@ -3,10 +3,10 @@ title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output:
-  pdf_document:
-    toc: true
   rmdformats::readthedown:
     highlight: kate
+  pdf_document:
+    toc: true
 ---
 
 
@@ -76,7 +76,12 @@ kable(
     bind_rows(model_diags)
     )
   )
+```
 
+Based on R~2~, AIC, and BIC, the best model appears to be the location model. Let's examine some diagnostic plots to make sure the assumptions of linear regression are met.
+
+```{r fig.width=3, fig.height=3}
+plot(models$location)
 ```
 
 ### Parameter Interpretation
