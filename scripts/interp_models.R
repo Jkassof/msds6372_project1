@@ -5,6 +5,7 @@ library(purrr)
 library(broom)
 
 train <- read.csv("data/train1_clean.csv")
+
 # Select variables related to the location of a property
 location <- train %>%
   select(MSZoning,

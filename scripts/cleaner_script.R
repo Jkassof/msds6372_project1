@@ -51,7 +51,7 @@ level.Fix =  rbind.data.frame(
   c('GarageFinish','-1','None'),
   c('GarageQual','-1','None'),
   c('GarageCond','-1','None')
-  )
+)
 
 level.Fix2 =  rbind.data.frame(
   c('MSZoning','C (all)','C'),
