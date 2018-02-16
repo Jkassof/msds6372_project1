@@ -3,10 +3,10 @@ title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output:
-  pdf_document:
-    toc: true
   rmdformats::readthedown:
     highlight: kate
+  pdf_document:
+    toc: true
 ---
 
 
@@ -37,15 +37,15 @@ Buying a house is one of the largest financial decisions many people will make. 
 
 # Data Description
 
-We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The dataset contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. Given the geography dependent nature of home value, the results of below analyses can't be applied nationally. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
+We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The data set contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. Given the geography dependent nature of home value, the results of below analyses can't be applied nationally. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
 
-See the codebook.txt file in the github repo for complete information about all variables.
+See the codebook.txt file in the github repository for complete information about all variables.
 
 ***
 
 # Exploratory Analysis
 
-Comments on various things noticed as exloring the data and general idea of what the cleaning was. Reference appendix for entire cleaninf functions and scripts.
+Comments on various things noticed as exploring the data and general idea of what the cleaning was. Reference appendix for entire cleaning functions and scripts.
 
 ***
 
@@ -60,11 +60,11 @@ For the interpretable model approach, rather than just taking a handful of easil
 * Location, location, location!
     * For this model, we used parameters that are related to the physical location of the property. For example, neighborhood, zoning, frontage, lot size, etc.
 * It's all about the curb appeal
-    * For this model, we used parameters related to the external appearance of the property. For exampe, house style, roof style, external vaneer materials, etc.
+    * For this model, we used parameters related to the external appearance of the property. For example, house style, roof style, external veneer materials, etc.
 * It's what's on the inside that counts
     * For this model, we used parameters related to the internals of the property, the bones if you will. For example, the foundation, the electrical and heating system, etc.
     
-We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily interpretted.
+We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily interpreted.
 
 
 
@@ -82,34 +82,37 @@ kable(
   )
 ```
 
-Based on R~2~, AIC, and BIC, the best model appears to be the location model. Let's examine some diagnostic plots to make sure the assumptions of linear regression are met.
+Based on R^2^, AIC, and BIC, the best model appears to be the location model. Let's examine some diagnostic plots to make sure the assumptions of linear regression are met.
 
 ```{r fig.width=4, fig.height=4, fig.align='center'}
 plot(loc_lm$residuals, ylab = 'Residual', main = 'Constant Variance Check')
 ```
 
-In the plot above, it appears there is not strong evidence against the assumption of constant variance in our residuals. I see a few points that could be concerning but we will proceed with caution for now.
-
+In the plot above, it appears there is not strong evidence against the assumption of constant variance in our residuals. I see a few points that have potentially high leverage, but nothing too egregious so we can proceed.
 
 
 ```{r fig.width=4, fig.height=4, fig.align='center'}
 hist(loc_lm$residuals, xlab = 'Residual', main = 'Residual Normality')
 ```
 
-This histogram shows a symetric distribution, and does not provide strong evidence against normality. We will proceed with caution.
+This histogram shows a symmetric distribution, and does not provide strong evidence against normality.
+
+Our final assumption of independent observations, we will assume the data collection was conducted in a way that will provide independent observations. This assumption is probably the weakest as property values within a given city (and more so within a given neighborhood) are fairly dependent on each other. We will proceed with caution.
 
 
 ### Parameter Interpretation
 
-Interpretation - make sure to reverse the log transpose correctly
-Confidence Intervals
+Below we will take a cursory look at all parameter estimates, then discuss a few of the parameters with the strongest influence on sale price.
 
-```{r}
+```{r fig.height=4, fig.align='center'}
 td <- tidy(loc_lm, conf.int = TRUE)
 library(ggplot2)
 ggplot(td[-1,], aes(estimate, term, color = term)) +
     geom_point() +
     geom_errorbarh(aes(xmin = conf.low, xmax = conf.high)) +
+    labs(x = "Coefficient Estimate", y = "Parameter") +
+    ggtitle("OLS Parameter Estimates (95% confidence intervals)",
+            subtitle = "Intercept Estimate Outside of Axis") +
     theme(legend.position = 'none')
 ```
 
@@ -119,11 +122,11 @@ The neighborhood variable has quite a lot of levels, but we can get an idea here
 td %>% arrange(desc(estimate)) %>% slice(2:6) %>% kable()
 ```
 
-It appears that the zoning variable has a very strong effect on the price, as does the size of the lot.  
+It appears that the zoning variable has the strongest effect on price, as does the size of the lot. The RM Level of the zoning variable means "Residential Medium Density." Bearing in mind that we did a log transform to the sale price (which makes this a log-linear model), we can estimate that a property in this zoning area increases the median sale price by a multiplicative factor of e^.458^ = `r round(exp(.458), 4)`. Similarly, zoning classification FV (floating village residential) indicates an e^.354^ = `r round(exp(.354), 4)` multiplier to the median sale price. Our most influential continuous variable, the area of the lot the proper is built on, gives a e^.27^ = `r round(exp(.27))` multiplier to the median sale price for each unit (acre) increase.
 
 ## Predictive Models
 
-Restatement of problem here
+The goal of this section is to make as performant a model as possible. We are not trying to be interpretable or parsimonious, we are primarily optimizing on Kaggle score. 
 
 ### Model Selection
 
@@ -140,19 +143,26 @@ Comparing Competing Models
 
 # Conclusion
 
-# Appendix
+In the battle of the property value tropes, it turns out that the old adage of "location, location, location" is right afterall. We compared models that focused on location, curb appeal, and the interior construction of a property, and found that on all measures, the location centric model was most predictive. This is useful for the parties in a real estate transaction because they know that playing up the location of a property can lead to a higher sale price. On the flipside, if you are looking for a home, it is good to know that you can likely get a good deal on a otherwise very nice property if you are williing to live outside of the premier neighborhoods.
 
+# Appendix: Code for all analyses
+
+The below commented code provides the steps taken in order to create, analyze, and select our models focused on interpretability.
 ```{r comment=''}
 cat(readLines('scripts/interp_models.R'), sep = '\n')
 ```
 
+The below code provides the functions we used for cleaning up the data set.
 ```{r comment=''}
 cat(readLines('scripts/cleaner_funs.R'), sep = '\n')
 ```
 
+The below code provides the script that calls the above cleaner functions, and does various other data cleaning.
 ```{r comment=''}
 cat(readLines('scripts/cleaner_script.R'), sep = '\n')
 ```
+
+The below code provides the SAS code used for generating and evaluating our SAS regressions used for finding the most predictive model.
 
 ```{r comment=''}
 #cat(readLines('a.csv'), sep = '\n')

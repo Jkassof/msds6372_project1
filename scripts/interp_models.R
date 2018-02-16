@@ -82,12 +82,11 @@ bind_cols(
 loc_lm <- models$location
 
 # Check Assumptions
-# Constant variance looks good, one suspicious point but not too
-# bad
-plot(loc_lm$residuals)
+# Constant variance looks good, one suspicious point but not too bad
+#plot(loc_lm$residuals)
 
 # Symmetric mostly normal distribution, assumption ok
-hist(loc_lm$residuals)
+#hist(loc_lm$residuals)
 
 # Read in the test data and get rid of the SalePrice column
 # which we added to facilitate prediction in SAS
