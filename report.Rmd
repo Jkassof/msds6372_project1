@@ -3,10 +3,10 @@ title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output:
-  rmdformats::readthedown:
-    highlight: kate
   pdf_document:
     toc: true
+  rmdformats::readthedown:
+    highlight: kate
 ---
 
 
@@ -41,10 +41,13 @@ We will be using the Ames, Iowa individual residential property sales data set f
 
 See the codebook.txt file in the github repo for complete information about all variables.
 
+***
+
 # Exploratory Analysis
 
 Comments on various things noticed as exloring the data and general idea of what the cleaning was. Reference appendix for entire cleaninf functions and scripts.
 
+***
 
 # Questions of Interest
 
@@ -74,21 +77,49 @@ kable(
   bind_cols(
     data.frame(ModelName = c("location", "inside", "outside")),
     bind_rows(model_diags)
-    )
+    ) %>%
+    select(ModelName, adj.r.squared, AIC, BIC, df)
   )
 ```
 
 Based on R~2~, AIC, and BIC, the best model appears to be the location model. Let's examine some diagnostic plots to make sure the assumptions of linear regression are met.
 
-```{r fig.width=3, fig.height=3}
-plot(models$location)
+```{r fig.width=4, fig.height=4, fig.align='center'}
+plot(loc_lm$residuals, ylab = 'Residual', main = 'Constant Variance Check')
 ```
+
+In the plot above, it appears there is not strong evidence against the assumption of constant variance in our residuals. I see a few points that could be concerning but we will proceed with caution for now.
+
+
+
+```{r fig.width=4, fig.height=4, fig.align='center'}
+hist(loc_lm$residuals, xlab = 'Residual', main = 'Residual Normality')
+```
+
+This histogram shows a symetric distribution, and does not provide strong evidence against normality. We will proceed with caution.
+
 
 ### Parameter Interpretation
 
-Interpretation
+Interpretation - make sure to reverse the log transpose correctly
 Confidence Intervals
 
+```{r}
+td <- tidy(loc_lm, conf.int = TRUE)
+library(ggplot2)
+ggplot(td[-1,], aes(estimate, term, color = term)) +
+    geom_point() +
+    geom_errorbarh(aes(xmin = conf.low, xmax = conf.high)) +
+    theme(legend.position = 'none')
+```
+
+The neighborhood variable has quite a lot of levels, but we can get an idea here for all the parameters estimates and a 95% confidence interval. Let's take a closer look at the five variables with the largest coefficient estimates.
+
+```{r}
+td %>% arrange(desc(estimate)) %>% slice(2:6) %>% kable()
+```
+
+It appears that the zoning variable has a very strong effect on the price, as does the size of the lot.  
 
 ## Predictive Models
 
@@ -104,8 +135,26 @@ Comparing Competing Models
     External Cross Validation
     Kaggle Score
     
-    
+
+***
+
 # Conclusion
 
 # Appendix
+
+```{r comment=''}
+cat(readLines('scripts/interp_models.R'), sep = '\n')
+```
+
+```{r comment=''}
+cat(readLines('scripts/cleaner_funs.R'), sep = '\n')
+```
+
+```{r comment=''}
+cat(readLines('scripts/cleaner_script.R'), sep = '\n')
+```
+
+```{r comment=''}
+#cat(readLines('a.csv'), sep = '\n')
+```
 

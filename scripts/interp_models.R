@@ -71,7 +71,24 @@ model_params <- map(models, tidy)
 # Map the broom::glance function across our models to 
 # get model diagnostics in a tidy data frame
 model_diags <- map(models, glance)
- 
+
+# After looking at the below, we can see that location seems to
+# be the best model, will continue analysis with that model
+bind_cols(
+  data.frame(ModelName = c("location", "inside", "outside")),
+  bind_rows(model_diags)
+)
+# Give selected model its own variable for easy reference
+loc_lm <- models$location
+
+# Check Assumptions
+# Constant variance looks good, one suspicious point but not too
+# bad
+plot(loc_lm$residuals)
+
+# Symmetric mostly normal distribution, assumption ok
+hist(loc_lm$residuals)
+
 # Read in the test data and get rid of the SalePrice column
 # which we added to facilitate prediction in SAS
 test <- read.csv("data/test_clean.csv")
@@ -81,3 +98,5 @@ test_x <- test[, -which(names(test) == "SalePrice")]
 # predictions for submitting to kaggle
 preds <- list()
 preds <- map(models, predict, newdata = test_x)
+
+
