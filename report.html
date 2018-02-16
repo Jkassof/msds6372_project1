@@ -72,6 +72,19 @@ $(document).ready(function () {
 </div>
 
 <div id="main">
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre><code>## Warning in predict.lm(.x[[i]], ...): prediction from a rank-deficient fit
+## may be misleading
+
+## Warning in predict.lm(.x[[i]], ...): prediction from a rank-deficient fit
+## may be misleading</code></pre>
 <hr />
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -109,7 +122,69 @@ $(document).ready(function () {
 <p>We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily interpretted.</p>
 <div id="model-selection" class="section level3">
 <h3>Model Selection</h3>
-<p>Type of Selection Assumptions Optional Comparing Competing Models</p>
+<p>After running our three models, let’s take a look at some diagnostics. After picking a model based on diagnostics, we will examine assumptions and parameters.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">ModelName</th>
+<th align="right">r.squared</th>
+<th align="right">adj.r.squared</th>
+<th align="right">sigma</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+<th align="right">df</th>
+<th align="right">logLik</th>
+<th align="right">AIC</th>
+<th align="right">BIC</th>
+<th align="right">deviance</th>
+<th align="right">df.residual</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">location</td>
+<td align="right">0.6668696</td>
+<td align="right">0.6567534</td>
+<td align="right">0.2340279</td>
+<td align="right">65.92065</td>
+<td align="right">0</td>
+<td align="right">44</td>
+<td align="right">71.06803</td>
+<td align="right">-52.13605</td>
+<td align="right">185.7426</td>
+<td align="right">77.55297</td>
+<td align="right">1416</td>
+</tr>
+<tr class="even">
+<td align="left">inside</td>
+<td align="right">0.6463671</td>
+<td align="right">0.6296121</td>
+<td align="right">0.2431044</td>
+<td align="right">38.57748</td>
+<td align="right">0</td>
+<td align="right">67</td>
+<td align="right">27.46851</td>
+<td align="right">81.06299</td>
+<td align="right">440.5240</td>
+<td align="right">82.32597</td>
+<td align="right">1393</td>
+</tr>
+<tr class="odd">
+<td align="left">outside</td>
+<td align="right">0.6066970</td>
+<td align="right">0.5964634</td>
+<td align="right">0.2537499</td>
+<td align="right">59.28467</td>
+<td align="right">0</td>
+<td align="right">38</td>
+<td align="right">-50.14585</td>
+<td align="right">178.29170</td>
+<td align="right">384.4532</td>
+<td align="right">91.56120</td>
+<td align="right">1422</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="parameter-interpretation" class="section level3">
 <h3>Parameter Interpretation</h3>

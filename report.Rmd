@@ -3,14 +3,14 @@ title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output:
-  rmdformats::readthedown:
-    highlight: kate
   pdf_document:
     toc: true
+  rmdformats::readthedown:
+    highlight: kate
 ---
 
 
-```{r knitr_init, echo=FALSE, cache=FALSE}
+```{r knitr_init, echo=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 library(knitr)
 library(rmdformats)
 
@@ -24,6 +24,8 @@ opts_chunk$set(echo=FALSE,
                message=FALSE,
                warning=FALSE)
 opts_knit$set(width=75)
+
+source("scripts/interp_models.R")
 ```
 
 
@@ -52,12 +54,12 @@ We focused on two approaches, one geared towards model performance and one towar
 
 For the interpretable model approach, rather than just taking a handful of easily understood parameters and building a model, we wanted to take a different approach. There are many adages when it comes to home buying, we wanted to see which are the most true. The three ideas about what drives the price of a house that we looked at are as follows:
 
-- Location, location, location!
-    - For this model, we used parameters that are related to the physical location of the property. For example, neighborhood, zoning, frontage, lot size, etc.
-- It's all about the curb appeal
-    - For this model, we used parameters related to the external appearance of the property. For exampe, house style, roof style, external vaneer materials, etc.
-- It's what's on the inside that counts
-    - For this model, we used parameters related to the internals of the property, the bones if you will. For example, the foundation, the electrical and heating system, etc.
+* Location, location, location!
+    * For this model, we used parameters that are related to the physical location of the property. For example, neighborhood, zoning, frontage, lot size, etc.
+* It's all about the curb appeal
+    * For this model, we used parameters related to the external appearance of the property. For exampe, house style, roof style, external vaneer materials, etc.
+* It's what's on the inside that counts
+    * For this model, we used parameters related to the internals of the property, the bones if you will. For example, the foundation, the electrical and heating system, etc.
     
 We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily interpretted.
 
@@ -65,9 +67,17 @@ We also included the Sale Condition variable in all three models because the con
 
 ### Model Selection
 
-Type of Selection
-Assumptions
-Optional Comparing Competing Models
+After running our three models, let's take a look at some diagnostics. After picking a model based on diagnostics, we will examine assumptions and parameters.
+
+```{r diagnostics_table}
+kable(
+  bind_cols(
+    data.frame(ModelName = c("location", "inside", "outside")),
+    bind_rows(model_diags)
+    )
+  )
+
+```
 
 ### Parameter Interpretation
 
