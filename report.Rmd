@@ -46,11 +46,22 @@ Comments on various things noticed as exloring the data and general idea of what
 
 # Questions of Interest
 
-We focused on two approaches, one geared towards model performance and one towards model interpretability by a real estate agent.
+We focused on two approaches, one geared towards model performance and one towards model interpretability by one of the parties involves in a home purchase.
 
 ## Interpretable Models
 
-Restatement of problem here
+For the interpretable model approach, rather than just taking a handful of easily understood parameters and building a model, we wanted to take a different approach. There are many adages when it comes to home buying, we wanted to see which are the most true. The three ideas about what drives the price of a house that we looked at are as follows:
+
+- Location, location, location!
+    - For this model, we used parameters that are related to the physical location of the property. For example, neighborhood, zoning, frontage, lot size, etc.
+- It's all about the curb appeal
+    - For this model, we used parameters related to the external appearance of the property. For exampe, house style, roof style, external vaneer materials, etc.
+- It's what's on the inside that counts
+    - For this model, we used parameters related to the internals of the property, the bones if you will. For example, the foundation, the electrical and heating system, etc.
+    
+We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily interpretted.
+
+
 
 ### Model Selection
 
