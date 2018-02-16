@@ -66,7 +66,12 @@ $(document).ready(function () {
       <li><a href="#predictive-models">Predictive Models</a></li>
       </ul></li>
       <li><a href="#conclusion">Conclusion</a></li>
-      <li><a href="#appendix-code-for-all-analyses">Appendix: Code for all analyses</a></li>
+      <li><a href="#appendix-code-for-all-analyses">Appendix: Code for all analyses</a><ul>
+      <li><a href="#appendix-a-interp_models.r">Appendix A: interp_models.R</a></li>
+      <li><a href="#appendix-b-cleaner_funs.r">Appendix B: cleaner_funs.R</a></li>
+      <li><a href="#appendix-c-cleaner_script.r">Appendix C: cleaner_script.R</a></li>
+      <li><a href="#appendix-c-sas_modeling.txt">Appendix C: sas_modeling.txt</a></li>
+      </ul></li>
       </ul>
     </div>
 </div>
@@ -85,7 +90,8 @@ $(document).ready(function () {
 </div>
 <div id="exploratory-analysis" class="section level1">
 <h1>Exploratory Analysis</h1>
-<p>Comments on various things noticed as exploring the data and general idea of what the cleaning was. Reference appendix for entire cleaning functions and scripts.</p>
+<p>Our exploratory analysis was focused on getting a sense for the (numerous) variables in the dataset. We wanted to understand the marginal distributions of individual variables, the relationship between those individual variables and the sale price, and the correlation between the variables themselves.</p>
+<p>In <code>cleaner_script.R</code> (Appendix C), we used to loop to generator histograms and scatter/box-plots (against sale price) for each variable.</p>
 <hr />
 </div>
 <div id="questions-of-interest" class="section level1">
@@ -237,6 +243,8 @@ $(document).ready(function () {
 </div>
 <div id="appendix-code-for-all-analyses" class="section level1">
 <h1>Appendix: Code for all analyses</h1>
+<div id="appendix-a-interp_models.r" class="section level2">
+<h2>Appendix A: interp_models.R</h2>
 <p>The below commented code provides the steps taken in order to create, analyze, and select our models focused on interpretability.</p>
 <pre><code># Load libraries
 # If you don't have one, you will have to run install.packages('library')
@@ -337,6 +345,9 @@ test_x &lt;- test[, -which(names(test) == &quot;SalePrice&quot;)]
 # predictions for submitting to kaggle
 preds &lt;- list()
 preds &lt;- map(models, predict, newdata = test_x)</code></pre>
+</div>
+<div id="appendix-b-cleaner_funs.r" class="section level2">
+<h2>Appendix B: cleaner_funs.R</h2>
 <p>The below code provides the functions we used for cleaning up the data set.</p>
 <pre><code>#Libraries
 
@@ -382,6 +393,9 @@ impute.bySampling = function(data) {
   data[na.Indices] = sample(data.Complete,size=sample.Size,replace=TRUE)
   return(data)
 }</code></pre>
+</div>
+<div id="appendix-c-cleaner_script.r" class="section level2">
+<h2>Appendix C: cleaner_script.R</h2>
 <p>The below code provides the script that calls the above cleaner functions, and does various other data cleaning.</p>
 <pre><code># Import data
 
@@ -570,7 +584,11 @@ write.csv(merge,'data/merge_clean.csv',row.names=FALSE)
 # dev.off()
 # fit = lm(log(SalePrice) ~ train[,names(feature.Levels[f.num])],data=train)
 # </code></pre>
+</div>
+<div id="appendix-c-sas_modeling.txt" class="section level2">
+<h2>Appendix C: sas_modeling.txt</h2>
 <p>The below code provides the SAS code used for generating and evaluating our SAS regressions used for finding the most predictive model.</p>
+</div>
 </div>
 </div>
 

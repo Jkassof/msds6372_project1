@@ -45,7 +45,9 @@ See the codebook.txt file in the github repository for complete information abou
 
 # Exploratory Analysis
 
-Comments on various things noticed as exploring the data and general idea of what the cleaning was. Reference appendix for entire cleaning functions and scripts.
+Our exploratory analysis was focused on getting a sense for the (numerous) variables in the dataset. We wanted to understand the marginal distributions of individual variables, the relationship between those individual variables and the sale price, and the correlation between the variables themselves.
+
+In `cleaner_script.R` (Appendix C), we used to loop to generator histograms and scatter/box-plots (against sale price) for each variable.
 
 ***
 
@@ -147,24 +149,31 @@ In the battle of the property value tropes, it turns out that the old adage of "
 
 # Appendix: Code for all analyses
 
+## Appendix A: interp_models.R
 The below commented code provides the steps taken in order to create, analyze, and select our models focused on interpretability.
 ```{r comment=''}
 cat(readLines('scripts/interp_models.R'), sep = '\n')
 ```
+
+## Appendix B: cleaner_funs.R
 
 The below code provides the functions we used for cleaning up the data set.
 ```{r comment=''}
 cat(readLines('scripts/cleaner_funs.R'), sep = '\n')
 ```
 
+## Appendix C: cleaner_script.R
+
 The below code provides the script that calls the above cleaner functions, and does various other data cleaning.
 ```{r comment=''}
 cat(readLines('scripts/cleaner_script.R'), sep = '\n')
 ```
 
+## Appendix C: sas_modeling.txt
+
 The below code provides the SAS code used for generating and evaluating our SAS regressions used for finding the most predictive model.
 
 ```{r comment=''}
-#cat(readLines('a.csv'), sep = '\n')
+#cat(readLines('scripts/sas_modeling.txt'), sep = '\n')
 ```
 
