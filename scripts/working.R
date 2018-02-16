@@ -1,16 +1,19 @@
-# Useful for realtor will be info readily found out or available and easy to
-# interpret what the coefficient means
+# Load libraries
+# If you don't have one, you will have to run install.packages('library')
+library(dplyr)
+library(purrr)
+library(broom)
 
-# Location location location vs whats on the outside vs whats on the inside
-
+# Select variables related to the location of a property
 location <- train %>%
-  select(MSSubClass,
-         MSZoning,
+  select(MSZoning,
          LotFrontage,
          LotArea,
          Neighborhood,
-         Condition1)
-
+         Condition1,
+         SaleCondition,
+         SalePrice)
+# Select variables related to the external appearance of a property
 outside <- train %>%
   select(LotConfig,
          BldgType,
@@ -21,26 +24,58 @@ outside <- train %>%
          MasVnrType,
          MasVnrArea,
          ExterQual,
-         ExterCond)
+         ExterCond,
+         PavedDrive,
+         SaleCondition,
+         SalePrice)
 
+# Select variables related to the internal
 inside <- train %>%
   select(Foundation,
-         BsmtFinType1)
+         BsmtFinType1,
+         BsmtFinType2,
+         Heating,
+         HeatingQC,
+         CentralAir,
+         Electrical,
+         Fireplaces,
+         SaleCondition,
+         SalePrice)
 
-MSSubClass
-Lot Area
-Utilities
-Neighborhood
-Bldg Type
-Overall Quality
-Overall Condition
-Year Remod/Add
-Exterior1
-Exterior2
-BsmtQual
-1st Flr SF (Continuous): First Floor square feet
-2nd Flr SF (Continuous)	: Second floor square feet
-Low Qual Fin SF (Continuous): Low quality finished square feet (all floors)
-KitchenQual
-GarageFinish
-Pool
+# Combine our 3 datasets into a list for easy functional mapping
+model_dfs <- list(location, outside, inside)
+
+# Creat a helper function that will generate a model formula
+# and run a standard OLS regression of SalePrice against all
+# variables for each of our 3 datasets
+model_fit <- function(x) {
+  model_formula <- formula("SalePrice ~ .")
+  lm(model_formula, data = x)
+}
+
+# Map our model fitting function above to all 3 datasets
+models <- map(model_dfs, model_fit) %>%
+  set_names(c("location", "outside", "inside"))
+
+# Add NAmes as a level because it shows up in the test
+# data and not the training data
+models$location$xlevels$Neighborhood <- 
+  c(models$location$xlevels$Neighborhood, "NAmes")
+
+# Map the broom::tidy function across our models to get parameter
+# estimates in a tidy data frame
+model_params <- map(models, tidy)
+
+# Map the broom::glance function across our models to 
+# get model diagnostics in a tidy data frame
+model_diags <- map(models, glance)
+ 
+# Read in the test data and get rid of the SalePrice column
+# which we added to facilitate prediction in SAS
+test <- read.csv("data/test_clean.csv")
+test_x <- test[, -which(names(test) == "SalePrice")]
+
+# Map the predict function aross our 3 models to generate
+# predictions for submitting to kaggle
+preds <- list()
+preds <- map(models, predict, newdata = test_x)

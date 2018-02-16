@@ -54,7 +54,8 @@ level.Fix =  rbind.data.frame(
   )
 
 level.Fix2 =  rbind.data.frame(
-  c('MSZoning','C (all)','C')
+  c('MSZoning','C (all)','C'),
+  c('Neighborhood','-1mes','Other')
 )
 
 #Assign missing values to existing factor levels
