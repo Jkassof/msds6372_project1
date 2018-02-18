@@ -134,9 +134,9 @@ It appears that the zoning variable has the strongest effect on price, as does t
 
 ### Introduction and Type of Selection
 
-The goal of this section is to make as performant a model as possible. We are not trying to be interpretable or parsimonious, we are primarily optimizing on Kaggle score or average squared error for test data sets (and ideally also for training data sets).
+The goal of this section is to make as performant a model as possible. We are not trying to be strictly interpretable or parsimonious.  We are primarily focused on optimizing on Kaggle score and model fit statistics.
 
-The process of of model optimization begins with an early analysis and review of basic regression assumptions, followed by comparing individual model performances for various fit statistics: adjusted R^2, Akaike Information Criterion (AIC), Bayesian Information Criterion (SBC), internal and external average squared error (ASE), and internal cross validation partial residual sum of squares (cv press).  The final step is to optimize models by including new features and interactions.
+The process of model optimization begins with an early analysis and review of basic regression assumptions, followed by comparing models across various fit statistics: adjusted R^2, Akaike Information Criterion (AIC), Bayesian Information Criterion (SBC), internal and external average squared error (ASE), and internal cross validation partial residual sum of squares (cv press).  Outliers are excluded where necessary, and interaction terms and polynomial flexibility is considered.
 
 Predictive models analyzed here are limited to one of four types of penalty-based regression estimation: stepwise selection (penalty-free least-squares estimation), modified forward selection via least angle regression selection (lar/lars), least absolute shrinkage and selection operator regression (lasso), and elastic net regression.  More information can be found on these regression types here.
 
@@ -150,49 +150,95 @@ The following 4 models are compared to identify most common predictors to use fo
 
 ![Figure 1. Assumption Validation Regression](images/prelim_model_assumptions.jpg)
 
-Since the second model, based on selecting according to lowest BIC, has the fewest predictors, we will proceed with that and check residuals for normality and constant variance.  These predictors and diagnostic plots are shown below.
+Since the second model, based on selecting according to lowest BIC, has the fewest predictors, we will proceed with that and check residuals for normality and constant variance.  These predictors are shown in Appendix D, Figure 2.
 
-![Figure 2. Predictors used in assumption validation model](images/modelterms_assumptions.jpg)
-
-
-The residuals displayed in the panel below show excellent conformity with the constant variance and normally-distributed residual assumptions.  There is some evidence of outlier presence in the studentized residual vs predicted value plot (Row 1, Column 2), which will be addressed in the section below on outlier analysis.
+The residuals displayed in the panel below show excellent conformity with the constant variance and normally-distributed residual assumptions.  There is some evidence of outlier presence in the studentized residual vs predicted value plot (Row 1, Column 2), which will be addressed in the section below on outlier analysis.  We also assumed that the homes included in the training set are independent.  More on this is discussed in the section `Additional Improvements` below.
 
 ![Figure 3. Residual Diagnostic Panel](images/residual_diags.jpg)
 
 ### Model Selection: First Analysis
 
-For the first pass model selection phase, the regression permutations in Figure 1 above are expanded to include LARS, LASSO, and Elastic Net.  There are two choose options used: internal cv press or BIC.  The table below show all of the model selection permutations used in this modeling phase.
+For the first pass model selection phase, the regression permutations in Figure 1 above are expanded to include LARS, LASSO, and Elastic Net.  There are two choose options used: internal cv press or BIC.  The table below shows all of the model selection permutations used in this modeling phase.
 
 ![Figure 4. Model Selection](images/ms_firstanalysis.jpg)
 
-The tables below showcase the top 10 models with respect to each of the six target statistics.  Note that 40% of the training data was held out as test data.
+The next set of tables showcase the top 10 models with respect to each of the six target statistics.  Note that 40% of the training data was held out as test data.
 
 ![Figure 5a. Top Adj. Rsq. / AIC / BIC Models](images/ms_fa_stats1.jpg)
 
 
 ![Figure 5b. Top ASE and Cv Press Models](images/ms_fa_stats2.jpg)
 
-Surprisingly, the basic stepwise algorithm that is often heralded as being inferior to penalty-based regression selection methods performed the best overall on all accounts except for the Test ASE.  A figure containing all of the predictors for the above 32 model fits is not included because this is considered exploratory. However, the SAS code provided in the appendix can be used to recreate these exact fits using SEED=12345 option.
+Surprisingly, the basic stepwise algorithm that is often heralded as being inferior to penalty-based regression selection methods performed the best overall on all accounts except for the Test ASE.  A figure containing all of the predictors for the above 32 model fits is not included because this is considered exploratory. However, the SAS code provided in the `SAS_early_examination.txt` in the appendix can be used to recreate these exact fits using `SEED=12345` option.
 
 Because the Test ASE is an important statistic to optimize, we will take an "average predictor" approach in which the frequency that each predictor is selected contributes to its score, with the top scoring predictors across all models being used as the set of predictors to include in the regression model.  Furthermore, we will not partition the data set for this part to ensure that we using as much data as possible to establish a set of initial predictors.
 
-Top predictors are defined as having a score of 4 or more.  The score is the average number of times the predictor was selected.  The levels for any categorical predictor that meets this criteria will be examined to identify potential groupings of levels that offer additional degrees of freedom.  This also helps reduce the possibility that our factor estimates represent training data noise and not a real difference in the predicted sale price.
+Top predictors are defined as having a score of 4 or more.  The score is the average number of times the predictor was selected.  The levels for any categorical predictor that meets this criteria will be examined to identify potential groupings of levels that offer additional degrees of freedom.  This also helps reduce the possibility that our factor level estimates represent training data noise and not a real difference in the predicted sale price.
 
-The unique list of factors below contains every predictor selected in at least one of the 32 regression fits.  Frequency A represents the number of times each factor was selected when the `CHOOSE=CV` option was used, and Frequency B represents the number of times each factor was selected when the `CHOOSE=SBC` option was used.  This is Model 1.
- 
-![](images/ms_fa_comb1.jpg) ![](images/ms_fa_comb2.jpg)
+The unique list of factors in Appendix D, Figure 6 contains every predictor selected in at least one of the 32 regression fits, along with the selection frequency.  Frequency A represents the number of times each factor was selected when the `CHOOSE=CV` option was used, and Frequency B represents the number of times each factor was selected when the `CHOOSE=SBC` option was used.
 
-In addition, manual factor level grouping was performed by analyzing group patterns and judgmentally selecting similar groups or combining groups without sufficient information to reliably estimate an average for that group.  These manual groupings along with the same predictors in Model 1 form Model 2.  Finally, Model 3 expands on Model 2 by including additional variables which improved the overall fit.
+The table below show the fit statistics for all predictors that scored 4 or higher.  This is labeled model 1.
 
-The table below shows the test ASE and Kaggle scores for Models 1-3.
+![Figure Ma. Model Performance Statistics](images/ms_model1.jpg)
 
-    
+Next, univariate plot analysis revealed useful factor level groups that would create a more parsimonious model.  `PROC SQL` in SAS is used to create these groupings.  The groupings are judgmentally selected for each factor based on patterns seen in Box Plots.  These manual groupings, along with the same predictors in Model 1, form Model 2.  You can find a list of the factor level groupings in `SAS_model2.txt` within the repo scripts folder.
+
+![Figure Mb. Model Performance Statistics](images/ms_model2.jpg)
+
+Model 3 was developed by dropping `GarageArea` because of it's near-zero estimate and adding `ExterCond` and `GarageQual` in order to capture additional quality-based information about the home.  This led to improved test ASE and Kaggle scores in Model 3.
+
+![Figure Mc. Model Performance Statistics](images/ms_model3.jpg)
+
+Before adding complexity to the model via interaction terms or attempting to model discontinuities in variables, outliers must be accounted for, which is discussed in the following section.
+
 ### Outlier Analysis
 
-### Model Selection: Second Analysis and Kaggle
+Figure 3 above revealed at least two significantly leveraged outliers that had very high studentized residuals (ID 1299 and 524).  In order to investigate these and other outliers,  studentized residuals greater in absolute value than 3.0 are examined. There are 9 homes which met this criteria that were removed from the analysis because either they were deemed outside of the scope of the predictive model, or they were in multiple sparesely populated factor levels which made it difficult to obtain a reliable mean estimate of Sale Price.
+
+The excluded outliers, along with the reasons for doing so, are in Appendix D, Figure 7.  The resulting model fit statistics are below (Model 4).
+
+
+![Figure Md. Model Performance Statistics](images/ms_model4.jpg)
+
+### Model Selection: Interaction Terms and Indicator Variables
+
+With outliers removed, the model is once again studied for opportunities to optimize model fit.  One thing that has not been considered so far are interactions between any predictors that can explain additional variability or offer more flexible parameterizations.
+
+There are a few variables with strong linear correlations in the training data set. `GarageCars/Garage Area`, `TotRmsAbvGrd`, and `GrLivArea` will be variables that probably should not have interactions included in the model if the correlated terms are present.  A table of all Pearson correlations greater than .5 is shown in Appendix D, Figure 8.  These were considered significant enough to be mindful of when selecting interactions.
+
+
+A first attempt to discover interactions was made by regressing partial residuals from Model 4 on all possible interaction combinations using `PROC GLMSELECT`.  However, this yielded no useful results because no terms were identified. 
+
+By manually trying potential interactions and examining fit statistics, the following two interactions were identified by their respectable p-values and Model III sum of squares (the marginal sum of squares obtained if the variable were entered last into the model).
+
+> 1. GrLivArea*FullBath
+  2. LotArea*Foundation
+
+The Model Performance Statistics table is updated with Model 5, which includes the two interactions listed here.
+
+![Figure Me. Model Performance Statistics](images/ms_model5.jpg)
+
+Two indicator terms are included to allow increased flexibility in the parameterizations of the `BsmtFinSF1*idxhasFB1` and `WoodDeckSF*idxhasWD` interactions.  This essentially allows for homes without these features to be modeled with a separate parameter so that the polynomial fits represent homes that actually have the feature.
+
+![Figure Mf. Model Performance Statistics](images/ms_model6.jpg)
+
+Finally, YearBuilt was converted into a piecewise interaction with an old vs new indicator so that we can allow for differing polynomial regression slopes based on whether homes are built after 2000.  This represents the final set of predictors, shown in model 7.  This model also includes an optimized regrouping of the MSSubClass variable.
+
+![Figure Mg. Model Performance Statistics](images/ms_model7.jpg)
+
+###Top Models
+
+Models 4, 3, and 2 had the top test ASE scores, and models 7, 6, and 5 had the top kaggle scores.
+
+The figure below is a screenshot of the top Kaggle score received.  The R code in appendix C and SAS code in appendix D can recreate the CSV file submitted to Kaggle.  The CSV file itself is also located in the appendix folder of this repo.
+
+![Figure 9. Final Kaggle Score](images/kaggle.jpg)
 
 ### Additional Improvements
-    
+
+The predictive capabilities utilized here did not make use of any clustering analysis that may have provided improved model fits.  For example, rather than using 2000 as a "flex" point for the polynomial term YearBuilt, we could have optimized the flex point based on some sort of variability optimization between homes built before 2000 and those built after 2000.
+
+Another consideration is the assumption of independence in the context of home sale prices.  It can be argued that sale price does reflect the sale prices of neighboring homes.  These neighboring home sale prices are included in every home appraisal and give every shopper a benchmark price to compare the home they are looking at with.  It is hard to imagine this results in a truly independent set of home sale prices in the area.  Perhaps some analysis can be done to examine correlations in home sale prices and reflect this in the standard errors of the sale price regression model.
 
 ***
 
@@ -227,6 +273,22 @@ cat(readLines('scripts/cleaner_script.R'), sep = '\n')
 The below code provides the SAS code used for generating and evaluating our SAS regressions used for finding the most predictive model.
 
 ```{r comment=''}
-#cat(readLines('scripts/sas_modeling.txt'), sep = '\n')
+cat(readLines('scripts/SAS_Model7.txt'), sep = '\n')
 ```
+## Appendix D: Extra Figures
+
+Figure 2. Predictors used in assumption validation model
+
+![Figure 2. Predictors used in assumption validation model](images/modelterms_assumptions.jpg)
+
+Figure 6. Model Predictors and Associated Scores
+
+![](images/ms_fa_comb1.jpg) ![](images/ms_fa_comb2.jpg)
+
+Figure 7. Outliers Removed
+
+![Figure 7. Outliers Removed](images/outlier_list.jpg)
+
+Figure 8. Linear Correlations in Training Data Sample
+![Figure 8. Linear Correlations in Training Data Sample](images/correlations.jpg)
 
