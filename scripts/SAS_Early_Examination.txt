@@ -1,0 +1,246 @@
+ODS GRAPHICS ON;
+
+proc import datafile="C:\Users\jat05\Downloads\MSDS_6372\Project 1\UNIT 6 Project Folder\merge_clean.csv"
+     dbms=csv out=work.saleprice replace;
+     delimiter=',';
+     getnames=yes;
+     guessingrows=32000;
+run;
+
+PROC SQL NOPRINT;
+	UPDATE saleprice
+	SET SalePrice = .
+	WHERE SalePrice = -1;
+/*
+proc reg data=work.saleprice_formatted;
+model SalePrice = LotFrontage LotArea OverallQual OverallCond YearBuilt YearRemodAdd MasVnrArea BsmtFinSF1 BsmtFinSF2 BsmtUnfSF 
+TotalBsmtSF FirstFlrSF SecFlrSF LowQualFinSF GrLivArea BsmtFullBath BsmtHalfBath FullBath HalfBath BedroomAbvGr KitchenAbvGr 
+TotRmsAbvGrd Fireplaces GarageYrBlt GarageCars GarageArea WoodDeckSF OpenPorchSF EnclosedPorch ScreenPorchSF PoolArea MiscVal 
+MoSold YrSold / VIF;
+run;
+
+ODS GRAPHICS ON;
+
+proc corr data=work.saleprice_formatted  NOPROB;
+var LotFrontage LotArea OverallQual OverallCond YearBuilt YearRemodAdd MasVnrArea BsmtFinSF1 BsmtFinSF2 BsmtUnfSF 
+TotalBsmtSF FirstFlrSF SecFlrSF LowQualFinSF GrLivArea BsmtFullBath BsmtHalfBath FullBath HalfBath BedroomAbvGr KitchenAbvGr 
+TotRmsAbvGrd Fireplaces GarageYrBlt GarageCars GarageArea WoodDeckSF OpenPorchSF EnclosedPorch ScreenPorchSF PoolArea MiscVal 
+MoSold YrSold;
+run;
+*/
+
+/*Proc GLM macros that substitute keywords with macro variables*/
+%MACRO RunGLMSelectStep(DSName, selection, select, choose, stop, modelList, classList);
+	proc GLMSELECT DATA=&DSName seed=12345 plots(stepaxis=number) = (criterionpanel ASEplot);
+	partition fraction(test=.4);
+		class &classList / split;
+		model SalePrice = &modelList / 
+		selection = &selection(select=&select stop=&stop choose=&choose) cvmethod=random(10);
+		ods output SelectedEffects=work.table_out&selection&select&stop;
+%MEND RunGLMSelectStep;
+%MACRO RunGLMSelectOther(DSName, selection, choose, stop, adaptive, modelList, classList);
+	proc GLMSELECT DATA=&DSName seed=12345 plots(stepaxis=number) = (criterionpanel ASEplot);
+	partition fraction(test=.4);
+		class &classList / split;
+		model SalePrice = &modelList / 
+		selection = &selection(&adaptive stop=&stop choose=&choose) cvmethod=random(10);
+		ods output SelectedEffects=work.table_out&selection&select&stop;
+%MEND RunGLMSelectOther;
+
+%MACRO RunReg(DSName, modelList, classList);
+*Initialize variables;
+%LET i=1;
+%LET selection=%SCAN(&selectionList,&i);
+%LET choose=%SCAN(&chooseCriteriaList,&i);
+%LET select=%SCAN(&inCriteriaList,&i);
+%LET stop=%SCAN(&stopCriteriaList,&i);
+%LET adaptive=;
+
+%DO %WHILE (&selection NE );
+	%IF &selection = stepwise %THEN
+		%RunGLMSelectStep(&DSName,&selection,&select,&choose, &stop, &modelList, &classList);
+	%ELSE 
+		%DO;
+			%IF &selection = lasso %THEN %LET adaptive=; %ELSE %LET adaptive=;
+			%RunGLMSelectOther(&DSName,&selection,&choose, &stop, &adaptive, &modelList, &classList);
+		%END;
+	*Update variables;
+	%LET i=%EVAL(&i+1);
+	%LET selection=%SCAN(&selectionList,&i);
+	%LET choose=%SCAN(&chooseCriteriaList,&i);
+	%LET select=%SCAN(&inCriteriaList,&i);
+	%LET stop=%SCAN(&stopCriteriaList,&i);
+%END;
+%MEND RunReg;
+
+/*Regression permutations to run*/
+DATA work.params;
+length selection$ 10;
+input selection$ inCriteria$ stopCriteria$ chooseCriteria$;
+*Method | enter | stop | choose;
+datalines;
+stepwise aic aic cv
+stepwise sbc sbc cv
+stepwise cp cp cv
+stepwise cv cv cv
+lasso aic aic cv
+lasso sbc sbc cv
+lasso cp cp cv
+lasso cv cv cv
+lar aic aic cv
+lar sbc sbc cv
+lar cp cp cv
+lar cv cv cv
+elasticnet aic aic cv
+elasticnet sbc sbc cv
+elasticnet cp cp cv
+elasticnet cv cv cv
+;
+run;
+
+/*All model terms to use in Initial Model Selection*/
+DATA work.modelterms;
+length model$ 50 class$ 25;
+input model class;
+datalines;
+MSSubClass MSSubClass
+MSZoning MSZoning
+LotFrontage*idxhasLF continuous
+LotArea continuous
+LotShape LotShape
+LotConfig LotConfig
+Neighborhood Neighborhood
+Condition1 Condition1
+BldgType BldgType
+HouseStyle HouseStyle
+OverallQual continuous
+OverallCond OverallCond
+YearBuilt continuous
+YearRemodAdd continuous
+RoofStyle RoofStyle
+Exterior1st Exterior1st
+Exterior2nd Exterior2nd
+MasVnrType MasVnrType
+MasVnrArea*idxhasMV continuous
+ExterQual ExterQual
+ExterCond ExterCond
+Foundation Foundation
+BsmtQual BsmtQual
+BsmtCond BsmtCond
+BsmtExposure BsmtExposure
+BsmtFinType1 BsmtFinType1
+BsmtFinSF1*idxhasFB1 continuous
+BsmtFinType2 BsmtFinType2
+BsmtFinSF2*idxhasFB2 continuous
+BsmtUnfSF continuous
+TotalBsmtSF*idxhasB continuous
+Heating Heating
+HeatingQC HeatingQC
+CentralAir CentralAir
+Electrical Electrical
+FirstFlrSF continuous
+SecFlrSF*idxhasSF continuous
+LowQualFinSF*idxhasLQF continuous
+GrLivArea continuous
+BsmtFullBath BsmtFullBath
+BsmtHalfBath BsmtHalfBath
+FullBath FullBath
+HalfBath HalfBath
+BedroomAbvGr BedroomAbvGr
+KitchenAbvGr KitchenAbvGr
+KitchenQual KitchenQual
+TotRmsAbvGrd continuous
+Fireplaces Fireplaces
+FireplaceQu FireplaceQu
+GarageType GarageType
+GarageYrBlt*idxhasG continuous
+GarageFinish GarageFinish
+GarageCars continuous
+GarageArea continuous
+GarageQual GarageQual
+GarageCond GarageCond
+PavedDrive PavedDrive
+WoodDeckSF*idxhasWD continuous
+OpenPorchSF*idxhasOP continuous
+EnclosedPorch*idxhasEP continuous
+ScreenPorchSF*idxhasSP continuous
+PoolArea*idxhasPool continuous
+MiscVal*idxhasMV continuous
+MoSold MoSold
+YrSold YrSold
+SaleCondition SaleCondition
+idxhasLF continuous
+idxhasMV continuous
+idxhasFB1 continuous
+idxhasFB2 continuous
+idxhasB continuous
+idxhasSF continuous
+idxhasLQF continuous
+idxhasG continuous
+idxhasWD continuous
+idxhasOP continuous
+idxhasEP continuous
+idxhasSP continuous
+idxhasPool continuous
+;
+RUN;
+
+/*Create macro variables used in the CLASS and MODEL statements in PROC GLM*/
+PROC SQL NOPRINT;
+	SELECT model
+	INTO :classList separated by ' '
+	FROM work.modelterms
+	WHERE class <> 'continuous';
+
+PROC SQL NOPRINT;
+	SELECT model
+	INTO :modelList separated by ' '
+	FROM work.modelterms;
+
+PROC SQL NOPRINT;
+	SELECT selection, inCriteria, stopCriteria, chooseCriteria
+	INTO :selectionList separated by ' ', :inCriteriaList separated by ' ',
+		:stopCriteriaList separated by ' ', :chooseCriteriaList separated by ' '
+	FROM work.params;
+
+/*Macro that calls proc GLM statements for every desired permutation of regression selection options*/
+%RunReg(work.saleprice, &modelList, &classList);
+
+/*Used to create a single table of predictors to examine in Excel*/
+proc sql;
+create table work.selectionresults as
+select *
+from(
+select * from table_outstepwiseaicaic
+union all
+select * from table_outstepwisesbcsbc
+union all
+select * from table_outstepwisecpcp
+union all
+select * from table_outstepwisecvcv
+union all
+select * from table_outlassoaicaic
+union all
+select * from table_outlassosbcsbc
+union all
+select * from table_outlassocpcp
+union all
+select * from table_outlassocvcv
+union all
+select * from table_outlaraicaic
+union all
+select * from table_outlarsbcsbc
+union all
+select * from table_outlarcpcp
+union all
+select * from table_outlarcvcv
+union all
+select * from table_outelasticnetaicaic
+union all
+select * from table_outelasticnetsbcsbc
+union all
+select * from table_outelasticnetcpcp
+union all
+select * from table_outelasticnetcvcv
+
+)result;

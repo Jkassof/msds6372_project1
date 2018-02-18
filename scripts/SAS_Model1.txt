@@ -1,0 +1,63 @@
+DATA work.modelterms;
+length model$ 50 class$ 25;
+input model class;
+datalines;
+BsmtCond BsmtCond
+BsmtExposure BsmtExposure
+BsmtFinSF1*idxhasFB1 continuous
+BsmtFullBath BsmtFullBath
+BsmtQual BsmtQual
+CentralAir CentralAir
+Condition1 Condition1
+Exterior1st Exterior1st
+ExterQual ExterQual
+Fireplaces Fireplaces
+FirstFlrSF continuous
+Foundation Foundation
+FullBath FullBath
+GarageArea continuous
+GarageCars GarageCars
+GarageType GarageType
+GrLivArea continuous
+HeatingQC HeatingQC
+KitchenAbvGr KitchenAbvGr
+KitchenQual KitchenQual
+LotArea continuous
+MSSubClass MSSubClass
+MSZoning MSZoning
+Neighborhood Neighborhood
+OverallCond OverallCond
+OverallQual OverallQual
+SaleCondition SaleCondition
+ScreenPorchSF*idxhasSP continuous
+TotalBsmtSF*idxhasB continuous
+WoodDeckSF*idxhasWD continuous
+YearBuilt continuous
+YearRemodAdd continuous
+;
+RUN;
+
+
+PROC SQL;
+	SELECT model
+	INTO :classList separated by ' '
+	FROM work.modelterms
+	WHERE class <> 'continuous';
+
+PROC SQL;
+	SELECT model
+	INTO :modelList separated by ' '
+	FROM work.modelterms;
+
+proc GLM DATA=saleprice;
+		class &classList;
+		model SalePrice = &modelList / clparm solution;
+		output out=work.estPrice predicted=SalePrice2 residual=Resid;
+run;
+proc GLMSELECT DATA=saleprice seed=12345;
+		class &classList;
+		partition fraction(test=.5);
+		model SalePrice = &modelList / SELECTION=stepwise(include=32 stop=32);
+		*modelaverage nsamples=500 REFIT;
+		*output out=work.estPriceMA predicted=SalePrice2;
+run; 
