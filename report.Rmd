@@ -138,7 +138,7 @@ The goal of this section is to make as performant a model as possible. We are no
 
 The process of model optimization begins with an early analysis and review of basic regression assumptions, followed by comparing models across various fit statistics: adjusted R^2, Akaike Information Criterion (AIC), Bayesian Information Criterion (SBC), internal and external average squared error (ASE), and internal cross validation partial residual sum of squares (cv press).  Outliers are excluded where necessary, and interaction terms and polynomial flexibility is considered.
 
-Predictive models analyzed here are limited to one of four types of penalty-based regression estimation: stepwise selection (penalty-free least-squares estimation), modified forward selection via least angle regression selection (lar/lars), least absolute shrinkage and selection operator regression (lasso), and elastic net regression.  More information can be found on these regression types here.
+Predictive models analyzed here are limited to one of four types of penalty-based regression estimation: stepwise selection (penalty-free least-squares estimation), modified forward selection via least angle regression selection (lar/lars), least absolute shrinkage and selection operator regression (lasso), and elastic net regression.  More information can be found on these regression types by opening the `data/lars.pdf` file in this repo.
 
 SAS and R will both be used throughout this process.  The latter is used to clean and merge training and test data sets which are exported into SAS for regression estimation.  As mentioned above in the Exploratory Analysis section, The R script used for this is `cleaner_script.R`.
 
@@ -169,9 +169,9 @@ The next set of tables showcase the top 10 models with respect to each of the si
 
 ![Figure 5b. Top ASE and Cv Press Models](images/ms_fa_stats2.jpg)
 
-Surprisingly, the basic stepwise algorithm that is often heralded as being inferior to penalty-based regression selection methods performed the best overall on all accounts except for the Test ASE.  A figure containing all of the predictors for the above 32 model fits is not included because this is considered exploratory. However, the SAS code provided in the `SAS_early_examination.txt` in the appendix can be used to recreate these exact fits using `SEED=12345` option.
+Surprisingly, the basic stepwise algorithm that is often heralded as being inferior to penalty-based regression selection methods performed the best overall on all accounts except for the Test ASE.  A figure containing all of the predictors for the above 32 model fits is not included because this is considered exploratory. However, the SAS code provided in `scripts/SAS_Early_Examination.txt` can be used to recreate these exact fits using `SEED=12345` option.
 
-Because the Test ASE is an important statistic to optimize, we will take an "average predictor" approach in which the frequency that each predictor is selected contributes to its score, with the top scoring predictors across all models being used as the set of predictors to include in the regression model.  Furthermore, we will not partition the data set for this part to ensure that we using as much data as possible to establish a set of initial predictors.
+Because the Test ASE is an important statistic to optimize, we cannot only rely on Stepwise selection.  The approach used was an "average predictor" approach in which the frequency that each predictor is selected contributes to its score, with the top scoring predictors across all model selection permutations being used as the set of predictors to include in the regression model.  Furthermore, the training data was not partitioned here to ensure that as much data as possible is being used to establish a set of initial predictors.
 
 Top predictors are defined as having a score of 4 or more.  The score is the average number of times the predictor was selected.  The levels for any categorical predictor that meets this criteria will be examined to identify potential groupings of levels that offer additional degrees of freedom.  This also helps reduce the possibility that our factor level estimates represent training data noise and not a real difference in the predicted sale price.
 
@@ -202,12 +202,12 @@ The excluded outliers, along with the reasons for doing so, are in Appendix D, F
 
 ### Model Selection: Interaction Terms and Indicator Variables
 
-With outliers removed, the model is once again studied for opportunities to optimize model fit.  One thing that has not been considered so far are interactions between any predictors that can explain additional variability or offer more flexible parameterizations.
+With outliers removed, the model was once again studied for opportunities to optimize model fit.  One thing that had not been considered is interactions between any predictors that can explain additional variability or offer more flexible parameterizations.
 
-There are a few variables with strong linear correlations in the training data set. `GarageCars/Garage Area`, `TotRmsAbvGrd`, and `GrLivArea` will be variables that probably should not have interactions included in the model if the correlated terms are present.  A table of all Pearson correlations greater than .5 is shown in Appendix D, Figure 8.  These were considered significant enough to be mindful of when selecting interactions.
+There are a few variables with strong linear correlations in the training data set. `GarageCars/Garage Area`, `TotRmsAbvGrd`, and `GrLivArea` will be variables that probably should never have interactions included in the model if the correlated terms are present.  A table of all Pearson correlations greater than .5 is shown in Appendix D, Figure 8.  These were considered significant enough to be mindful of when selecting interactions.
 
 
-A first attempt to discover interactions was made by regressing partial residuals from Model 4 on all possible interaction combinations using `PROC GLMSELECT`.  However, this yielded no useful results because no terms were identified. 
+A first attempt to discover interactions was made by regressing partial residuals from Model 4 on all possible interaction combinations using `PROC GLMSELECT`.  However, this yielded no useful results because no terms were identified. It could be that the selection methods were not sensitive enough to changes in partial residuals that were based on an already-decent model.  In other words, they may have been too small.
 
 By manually trying potential interactions and examining fit statistics, the following two interactions were identified by their respectable p-values and Model III sum of squares (the marginal sum of squares obtained if the variable were entered last into the model).
 
@@ -218,7 +218,7 @@ The Model Performance Statistics table is updated with Model 5, which includes t
 
 ![Figure Me. Model Performance Statistics](images/ms_model5.jpg)
 
-Two indicator terms are included to allow increased flexibility in the parameterizations of the `BsmtFinSF1*idxhasFB1` and `WoodDeckSF*idxhasWD` interactions.  This essentially allows for homes without these features to be modeled with a separate parameter so that the polynomial fits represent homes that actually have the feature.
+AFter this, two indicator terms (`idxhasNoFB1` and `idxhasNoWD`) were included to allow increased flexibility in the parameterizations of the `BsmtFinSF1*idxhasFB1` and `WoodDeckSF*idxhasWD` interactions that were in Models 1-3.  This essentially allowed for homes without these features to be fit to a separate parameter so that the polynomial fits represent homes that actually have the feature.
 
 ![Figure Mf. Model Performance Statistics](images/ms_model6.jpg)
 
