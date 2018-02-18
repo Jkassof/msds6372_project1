@@ -3,10 +3,10 @@ title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
 date: "2/11/2018"
 output:
-  rmdformats::readthedown:
-    highlight: kate
   pdf_document:
     toc: true
+  rmdformats::readthedown:
+    highlight: kate
 ---
 
 
@@ -37,7 +37,7 @@ Buying a house is one of the largest financial decisions many people will make. 
 
 # Data Description
 
-We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The data set contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. Given the geography dependent nature of home value, the results of below analyses can't be applied nationally. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
+We will be using the Ames, Iowa individual residential property sales data set freely available on Kaggle.com.  The data set contains 2,930 observations with 79 explanatory variables. All observations occur between 2006 and 2010. It is important to remember that any conclusions drawn from this data can only be applied in Ames, Iowa. For more information on the data, or to download it yourself, visit https://www.kaggle.com/c/house-prices-advanced-regression-techniques.
 
 See the codebook.txt file in the github repository for complete information about all variables.
 
@@ -57,7 +57,7 @@ To see the mathematical intent of these indicator variables, consider the univar
 
 # Questions of Interest
 
-We focused on two approaches, one geared towards model performance and one towards model interpretability by one of the parties involves in a home purchase.
+We focused on two approaches, one geared towards model performance and one towards model interpretability by one of the parties involved in a home purchase.
 
 ## Interpretable Models
 
@@ -70,9 +70,7 @@ For the interpretable model approach, rather than just taking a handful of easil
 * It's what's on the inside that counts
     * For this model, we used parameters related to the internals of the property, the bones if you will. For example, the foundation, the electrical and heating system, etc.
     
-We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily interpreted.
-
-
+We also included the Sale Condition variable in all three models because the context of the sale seems like way too key of a factor to leave out of any model that is meant to be easily understood
 
 ### Model Selection
 
