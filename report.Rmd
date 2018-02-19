@@ -251,7 +251,7 @@ knitr::include_graphics("images/ms_model6.jpg")
 ```
 
 
-Finally, YearBuilt was converted into a piecewise interaction with an old vs new indicator so that we can allow for differing polynomial regression slopes based on whether homes are built after 2000.  This represents the final set of predictors, shown in model 7.  This model also includes an optimized regrouping of the MSSubClass variable.
+In the 7th model iteration, YearBuilt was converted into a piecewise interaction with an old vs new indicator so that we can allow for differing polynomial regression slopes based on whether homes are built after 2000.  An additional continuous variable for 2nd floor square footage was added, and a few variables had their factor levels rearranged for optimal fit.
 
 ```{r out.width='500pt'}
 knitr::include_graphics("images/ms_model7.jpg")
