@@ -1,0 +1,233 @@
+proc import datafile="C:\Users\jat05\Downloads\MSDS_6372\Project 1\UNIT 6 Project Folder\merge_clean.csv"
+     dbms=csv out=work.saleprice replace;
+     delimiter=',';
+     getnames=yes;
+     guessingrows=32000;
+run;
+
+PROC SQL NOPRINT;
+	UPDATE saleprice
+	SET SalePrice = .
+	WHERE SalePrice = -1;
+
+PROC SQL;
+CREATE TABLE work.saleprice_dm1 AS
+SELECT
+Id,
+CASE WHEN MSSubClass = 20 THEN 20
+	WHEN MSSubClass in (30,40) THEN 30
+	WHEN MSSubClass in (45,50) THEN 50
+	WHEN MSSubClass = 60 THEN 60
+	WHEN MSSubClass = 70 THEN 70
+	WHEN MSSubClass in (75,80,85,90) THEN 90
+	WHEN MSSubClass = 120 THEN 120
+	WHEN MSSubClass in (150,160,180,190) THEN 190
+	END as MSSubClass,
+CASE WHEN MSZoning not in ('RM','C') THEN 'Other'
+	ELSE MSZoning END as MSZoning,
+LotFrontage,
+LotArea,
+CASE WHEN LotShape <> 'Reg' THEN 'Other'
+	ELSE LotShape END as LotShape,
+LotConfig,
+CASE WHEN Neighborhood not in ('BrkSide','Crawfor','Edwards','NoRidge','NridgHt','Somerst','StoneBr') THEN 'Other'
+	ELSE Neighborhood END as Neighborhood,
+CASE WHEN Condition1 = 'Norm' THEN 'Norm'
+	ELSE Condition1 END as Condition1,
+BldgType,
+HouseStyle,
+CASE WHEN OverallQual in (1,2,3) THEN 3
+	ELSE OverallQual END as OverallQual,
+CASE WHEN OverallCond in (1,2,3) THEN 3
+	WHEN OverallCond = 4 THEN 4
+	WHEN OverallCond = 5 THEN 5
+	WHEN OverallCond = 6 THEN 6
+	ELSE 7 END as OverallCond,
+YearBuilt,
+YearRemodAdd,
+RoofStyle,
+CASE WHEN Exterior1st <> 'BrkFace' then 'Other'
+	ELSE Exterior1st END as Exterior1st,
+Exterior2nd,
+MasVnrType,
+MasVnrArea,
+CASE WHEN ExterQual <> 'TA' THEN 'Other'
+	ELSE ExterQual END as ExterQual,
+CASE WHEN ExterCond <> 'Fa' THEN 'Other'
+	ELSE ExterCond END as ExterCond,
+CASE WHEN Foundation in ('Wood','BrkTil') THEN 'BrkTil'
+	ELSE Foundation END as Foundation,
+CASE WHEN BsmtQual <> 'Ex' THEN 'Other'
+	ELSE BsmtQual END as BsmtQual,
+CASE WHEN BsmtCond not in ('Gd','TA') THEN 'Other'
+	ELSE 'TA' END as BsmtCond,
+CASE WHEN BsmtExposure <> 'Gd' THEN 'Other'
+	ELSE BsmtExposure END as BsmtExposure,
+BsmtFinType1,
+BsmtFinSF1,
+BsmtFinType2,
+BsmtFinSF2,
+BsmtUnfSF,
+TotalBsmtSF,
+CASE WHEN Heating <> 'Grav' THEN 'Other'
+	ELSE Heating END as Heating,
+CASE WHEN HeatingQC <> 'Ex' THEN 'Other'
+	ELSE HeatingQC END as HeatingQC,
+CentralAir,
+Electrical,
+FirstFlrSF,
+SecFlrSF,
+LowQualFinSF,
+GrLivArea,
+CASE WHEN BsmtFullBath > 0 then 1
+	ELSE BsmtFullBath END as BsmtFullBath,
+BsmtHalfBath,
+CASE WHEN FullBath in (0,1) THEN 1
+	WHEN FullBath in (3,4) then 3
+	ELSE FullBath END as FullBath,
+CASE WHEN HalfBath = 2 THEN 1
+	ELSE HalfBath END as HalfBath,
+BedroomAbvGr,
+CASE WHEN KitchenAbvGr <> 2 THEN 1
+	ELSE KitchenAbvGr END as KitchenAbvGr,
+CASE WHEN KitchenQual in ('Fa','TA', 'Gd') THEN 'TA'
+	ELSE KitchenQual END as KitchenQual,
+CASE WHEN TotRmsAbvGrd > 10 THEN 10
+	ELSE TotRmsAbvGrd END as TotRmsAbvGrd,
+CASE WHEN Fireplaces > 2 THEN 2
+	ELSE Fireplaces END as Fireplaces,
+FireplaceQu,
+CASE WHEN GarageType not in ('Detchd','Attchd') THEN 'Other'
+	ELSE GarageType END as GarageType,
+GarageYrBlt,
+GarageFinish,
+CASE WHEN GarageCars > 3 THEN 3
+	WHEN GarageCars = 0 THEN 1
+	ELSE GarageCars END as GarageCars,
+GarageArea,
+CASE WHEN GarageQual in ('None','Po') then 'Low'
+	ELSE GarageQual END as GarageQual,
+GarageCond,
+PavedDrive,
+WoodDeckSF,
+OpenPorchSF,
+EnclosedPorch,
+ScreenPorchSF,
+PoolArea,
+MiscVal,
+MoSold,
+YrSold,
+CASE WHEN SaleCondition not in ('Abnorml', 'Partial') THEN 'Other'
+	ELSE SaleCondition END as SaleCondition,
+SalePrice,
+HomeAge,
+RemodAge,
+idxhasG,
+idxhasMV,
+idxhasFB1,
+CASE WHEN idxhasFB1 = 1 THEN 0 ELSE 1 END as idxhasNoFB1,
+idxhasFB2,
+CASE WHEN idxhasFB2 = 1 THEN 0 ELSE 1 END as idxhasNoFB2,
+idxhasB,
+CASE WHEN idxhasB = 1 THEN 0 ELSE 1 END as idxhasNoB,
+idxhasSF,
+idxhasPool,
+idxhasLF,
+CASE WHEN idxhasLF = 1 THEN 0 ELSE 1 END as idxhasNoLF,
+idxhasLQF,
+idxhasWD,
+CASE WHEN idxhasWD = 1 THEN 0 ELSE 1 END as idxhasNoWD,
+idxhasOP,
+idxhasEP,
+idxhasSP,
+CASE WHEN idxhasSP = 1 THEN 0 ELSE 1 END as idxhasNoSP,
+idxisOld,
+idxhasRem,
+idxisNew
+FROM work.saleprice;
+RUN;
+
+DATA work.modelterms;
+length model$ 50 class$ 25;
+input model class;
+datalines;
+BsmtCond BsmtCond
+BsmtExposure BsmtExposure
+BsmtFinSF1*idxhasFB1 continuous
+BsmtFullBath BsmtFullBath
+BsmtQual BsmtQual
+CentralAir CentralAir
+Condition1 Condition1
+Exterior1st Exterior1st
+ExterQual ExterQual
+Fireplaces Fireplaces
+FirstFlrSF continuous
+Foundation Foundation
+FullBath FullBath
+GarageCars continuous
+GarageType GarageType
+GrLivArea continuous
+HeatingQC HeatingQC
+KitchenAbvGr KitchenAbvGr
+KitchenQual KitchenQual
+LotArea continuous
+MSSubClass MSSubClass
+MSZoning MSZoning
+Neighborhood Neighborhood
+OverallCond OverallCond
+OverallQual continuous
+SaleCondition SaleCondition
+ScreenPorchSF*idxhasSP continuous
+TotalBsmtSF*idxhasB continuous
+WoodDeckSF*idxhasWD continuous
+YearRemodAdd continuous
+ExterCond ExterCond
+GarageQual GarageQual
+GrLivArea*FullBath continuous
+LotArea*Foundation continuous
+idxhasNoFB1 continuous
+idxhasNoWD continuous
+YearBuilt*idxisOld continuous
+YearBuilt*idxisNew continuous
+idxisNew continuous
+;
+RUN;
+
+
+PROC SQL;
+	SELECT model
+	INTO :classList separated by ' '
+	FROM work.modelterms
+	WHERE class <> 'continuous';
+
+PROC SQL;
+	SELECT model
+	INTO :modelList separated by ' '
+	FROM work.modelterms;
+
+proc GLM DATA=work.saleprice_dm1;
+		class &classList;
+		model SalePrice = &modelList / clparm solution;
+		output out=work.estPrice predicted=SalePrice2 residual=Resid;
+run;
+proc GLMSELECT DATA=work.saleprice_dm1 seed=12345;
+		class &classList;
+		partition fraction(test=.6);
+		model SalePrice = &modelList / SELECTION=stepwise(include=39 stop=39);
+		*modelaverage nsamples=500 REFIT;
+		*output out=work.estPriceMA predicted=SalePrice2;
+run; 
+
+PROC SQL;
+	CREATE TABLE work.estprice_kaggle AS (
+	SELECT Id, exp(SalePrice2) as SalePrice
+	FROM work.estPrice
+	WHERE Id > 1460);
+RUN;
+
+PROC SQL;
+	CREATE TABLE work.estprice_kaggle AS (
+	SELECT Id, exp(SalePrice) as ActualSalePrice, exp(SalePrice2) as PredSalePrice
+	FROM work.estPrice
+	WHERE Id <= 1460);
+RUN;

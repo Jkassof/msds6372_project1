@@ -42,3 +42,11 @@ impute.bySampling = function(data) {
   data[na.Indices] = sample(data.Complete,size=sample.Size,replace=TRUE)
   return(data)
 }
+
+find.Inconsistencies = function(data1, data2) {
+  lvl.Check = list()
+  for (i in seq(length(data1))) {
+    print(paste(colnames(data1)[i],sum(!(data1[,i] %in% data2[,i]))))
+  }
+  return(lvl.Check)
+}

@@ -2,66 +2,94 @@ PROC SQL;
 CREATE TABLE work.saleprice_dm1 AS
 SELECT
 Id,
-CASE WHEN MSSubClass = 150 THEN 160 
-	ELSE MSSubClass END AS MSSubClass,
-MSZoning,
+CASE WHEN MSSubClass in (20,60,120) THEN 200
+	WHEN MSSubClass in (30,70) THEN 200
+	WHEN MSSubClass in (150,160) THEN 160
+	ELSE 200 END as MSSubClass,
+CASE WHEN MSZoning not in ('RM','C') THEN 'Other'
+	ELSE MSZoning END as MSZoning,
 LotFrontage,
 LotArea,
-LotShape,
+CASE WHEN LotShape <> 'Reg' THEN 'Other'
+	ELSE LotShape END as LotShape,
 LotConfig,
-Neighborhood,
-Condition1,
+CASE WHEN Neighborhood not in ('BrkSide','Crawfor','Edwards','NoRidge','NridgHt','Somerst','StoneBr') THEN 'Other'
+	ELSE Neighborhood END as Neighborhood,
+CASE WHEN Condition1 = 'Norm' THEN 'Norm'
+	ELSE Condition1 END as Condition1,
 BldgType,
 HouseStyle,
-OverallQual,
-OverallCond,
+CASE WHEN OverallQual in (1,2,3) THEN 3
+	ELSE OverallQual END as OverallQual,
+CASE WHEN OverallCond in (1,2,3) THEN 3
+	WHEN OverallCond = 4 THEN 4
+	WHEN OverallCond = 5 THEN 5
+	WHEN OverallCond = 6 THEN 6
+	ELSE 7 END as OverallCond,
 YearBuilt,
 YearRemodAdd,
 RoofStyle,
-Exterior1st,
+CASE WHEN Exterior1st <> 'BrkFace' then 'Other'
+	ELSE Exterior1st END as Exterior1st,
 Exterior2nd,
 MasVnrType,
 MasVnrArea,
-ExterQual,
-ExterCond,
-Foundation,
-BsmtQual,
-BsmtCond,
-BsmtExposure,
+CASE WHEN ExterQual <> 'TA' THEN 'Other'
+	ELSE ExterQual END as ExterQual,
+CASE WHEN ExterCond <> 'Fa' THEN 'Other'
+	ELSE ExterCond END as ExterCond,
+CASE WHEN Foundation in ('Wood','BrkTil') THEN 'BrkTil'
+	ELSE Foundation END as Foundation,
+CASE WHEN BsmtQual <> 'Ex' THEN 'Other'
+	ELSE BsmtQual END as BsmtQual,
+CASE WHEN BsmtCond not in ('Gd','TA') THEN 'Other'
+	ELSE 'TA' END as BsmtCond,
+CASE WHEN BsmtExposure <> 'Gd' THEN 'Other'
+	ELSE BsmtExposure END as BsmtExposure,
 BsmtFinType1,
 BsmtFinSF1,
 BsmtFinType2,
 BsmtFinSF2,
 BsmtUnfSF,
 TotalBsmtSF,
-Heating,
-HeatingQC,
+CASE WHEN Heating <> 'Grav' THEN 'Other'
+	ELSE Heating END as Heating,
+CASE WHEN HeatingQC <> 'Ex' THEN 'Other'
+	ELSE HeatingQC END as HeatingQC,
 CentralAir,
 Electrical,
 FirstFlrSF,
 SecFlrSF,
 LowQualFinSF,
 GrLivArea,
-BsmtFullBath,
+CASE WHEN BsmtFullBath > 0 then 1
+	ELSE BsmtFullBath END as BsmtFullBath,
 BsmtHalfBath,
-CASE WHEN FullBath > 3 THEN 3
+CASE WHEN FullBath in (0,1) THEN 1
+	WHEN FullBath in (3,4) then 3
 	ELSE FullBath END as FullBath,
-HalfBath,
+CASE WHEN HalfBath = 2 THEN 1
+	ELSE HalfBath END as HalfBath,
 BedroomAbvGr,
-KitchenAbvGr,
-KitchenQual,
+CASE WHEN KitchenAbvGr <> 2 THEN 1
+	ELSE KitchenAbvGr END as KitchenAbvGr,
+CASE WHEN KitchenQual in ('Fa','TA', 'Gd') THEN 'TA'
+	ELSE KitchenQual END as KitchenQual,
 CASE WHEN TotRmsAbvGrd > 10 THEN 10
 	ELSE TotRmsAbvGrd END as TotRmsAbvGrd,
-CASE WHEN Fireplaces > 3 THEN 3
+CASE WHEN Fireplaces > 2 THEN 2
 	ELSE Fireplaces END as Fireplaces,
 FireplaceQu,
-GarageType,
+CASE WHEN GarageType not in ('Detchd','Attchd') THEN 'Other'
+	ELSE GarageType END as GarageType,
 GarageYrBlt,
 GarageFinish,
-CASE WHEN GarageCars > 4 THEN 4
+CASE WHEN GarageCars > 3 THEN 3
+	WHEN GarageCars = 0 THEN 1
 	ELSE GarageCars END as GarageCars,
 GarageArea,
-GarageQual,
+CASE WHEN GarageQual in ('None','Po') then 'Low'
+	ELSE GarageQual END as GarageQual,
 GarageCond,
 PavedDrive,
 WoodDeckSF,
@@ -72,7 +100,8 @@ PoolArea,
 MiscVal,
 MoSold,
 YrSold,
-SaleCondition,
+CASE WHEN SaleCondition not in ('Abnorml', 'Partial') THEN 'Other'
+	ELSE SaleCondition END as SaleCondition,
 SalePrice,
 HomeAge,
 RemodAge,
@@ -98,7 +127,6 @@ CASE WHEN idxhasSP = 1 THEN 0 ELSE 1 END as idxhasNoSP,
 idxisOld,
 idxhasRem,
 idxisNew
-
 FROM work.saleprice;
 RUN;
 
@@ -119,8 +147,7 @@ Fireplaces Fireplaces
 FirstFlrSF continuous
 Foundation Foundation
 FullBath FullBath
-GarageArea continuous
-GarageCars GarageCars
+GarageCars continuous
 GarageType GarageType
 GrLivArea continuous
 HeatingQC HeatingQC
@@ -131,13 +158,19 @@ MSSubClass MSSubClass
 MSZoning MSZoning
 Neighborhood Neighborhood
 OverallCond OverallCond
-OverallQual OverallQual
+OverallQual continuous
 SaleCondition SaleCondition
 ScreenPorchSF*idxhasSP continuous
 TotalBsmtSF*idxhasB continuous
 WoodDeckSF*idxhasWD continuous
 YearBuilt continuous
 YearRemodAdd continuous
+ExterCond ExterCond
+GarageQual GarageQual
+GrLivArea*FullBath continuous
+LotArea*Foundation continuous
+idxhasNoFB1 continuous
+idxhasNoWD continuous
 ;
 RUN;
 
@@ -161,7 +194,7 @@ run;
 proc GLMSELECT DATA=work.saleprice_dm1 seed=12345;
 		class &classList;
 		partition fraction(test=.6);
-		model SalePrice = &modelList / SELECTION=stepwise(include=32 stop=32);
+		model SalePrice = &modelList / SELECTION=stepwise(include=38 stop=38);
 		*modelaverage nsamples=500 REFIT;
 		*output out=work.estPriceMA predicted=SalePrice2;
 run; 
