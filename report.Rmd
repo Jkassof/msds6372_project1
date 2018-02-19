@@ -311,13 +311,27 @@ cat(readLines('scripts/SAS_Model7.txt'), sep = '\n')
 ```
 ## Appendix D: Extra Figures
 
-```{r out.width='500pt'}
+Figure 1: Predictors used in assumption validation model  
+```{r out.width="200px"}
 knitr::include_graphics("images/modelterms_assumptions.jpg")
+
+```
+
+Figures 2 and 3: Model Predictors and Associated Scores  
+```{r}
 knitr::include_graphics("images/ms_fa_comb1.jpg")
 knitr::include_graphics("images/ms_fa_comb2.jpg")
-knitr::include_graphics("images/outlier_list.jpg")
-knitr::include_graphics("images/correlations.jpg")
+```
 
+Figure 4: Outliers Removed and Explanation  
+```{r out.width='500pt'}
+knitr::include_graphics("images/outlier_list.jpg")
+```
+
+Figure 5: Linear Correlations in Training Data Sample
+
+```{r out.width='500pt'}
+knitr::include_graphics("images/correlations.jpg")
 ```
 
 
