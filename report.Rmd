@@ -22,7 +22,8 @@ opts_chunk$set(echo=FALSE,
                tidy=TRUE,
                comment=NA,
                message=FALSE,
-               warning=FALSE)
+               warning=FALSE,
+               fig.align = 'center')
 opts_knit$set(width=75)
 
 source("scripts/interp_models.R")
@@ -148,26 +149,38 @@ Because of the high number of possible explanatory variables, an initial regress
 
 The following 4 models are compared to identify most common predictors to use for assumption review.  We will use the SPLIT option in SAS to allow for each factor level to enter or exit the model independently.
 
-![Assumption Validation Regression](images/prelim_model_assumptions.jpg)
+```{r fig.align='center'}
+knitr::include_graphics("images/prelim_model_assumptions.jpg")
+```
+
+
 
 Since the second model, based on selecting according to lowest BIC, has the fewest predictors, we will proceed with that and check residuals for normality and constant variance.  These predictors are shown in Appendix D, Figure 2.
 
 The residuals displayed in the panel below show excellent conformity with the constant variance and normally-distributed residual assumptions.  There is some evidence of outlier presence in the studentized residual vs predicted value plot (Row 1, Column 2), which will be addressed in the section below on outlier analysis.  We also assumed that the homes included in the training set are independent.  More on this is discussed in the section `Additional Improvements` below.
 
-![Residual Diagnostic Panel](images/residual_diags.jpg)
+```{r fig.align='center'}
+knitr::include_graphics("images/residual_diags.JPG")
+```
 
 ### Model Selection: First Analysis
 
 For the first pass model selection phase, the regression permutations in Figure 1 above are expanded to include LARS, LASSO, and Elastic Net.  There are two choose options used: internal cv press or BIC.  The table below shows all of the model selection permutations used in this modeling phase.
 
-![Model Selection](images/ms_firstanalysis.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_firstanalysis.jpg")
+```
 
 The next set of tables showcase the top 10 models with respect to each of the six target statistics.  Note that 40% of the training data was held out as test data.
 
-![Top Adj. Rsq. / AIC / BIC Models](images/ms_fa_stats1.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_fa_stats1.jpg")
+```
 
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_fa_stats2.jpg")
+```
 
-![Top ASE and Cv Press Models](images/ms_fa_stats2.jpg)
 
 Surprisingly, the basic stepwise algorithm that is often heralded as being inferior to penalty-based regression selection methods performed the best overall on all accounts except for the Test ASE.  A figure containing all of the predictors for the above 32 model fits is not included because this is considered exploratory. However, the SAS code provided in `scripts/SAS_Early_Examination.txt` can be used to recreate these exact fits using `SEED=12345` option.
 
@@ -179,15 +192,24 @@ The unique list of factors in Appendix D, Figure 6 contains every predictor sele
 
 The table below show the fit statistics for all predictors that scored 4 or higher.  This is labeled model 1.
 
-![Model Performance Statistics](images/ms_model1.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model1.jpg")
+```
+
 
 Next, univariate plot analysis revealed useful factor level groups that would create a more parsimonious model.  `PROC SQL` in SAS is used to create these groupings.  The groupings are judgmentally selected for each factor based on patterns seen in Box Plots.  These manual groupings, along with the same predictors in Model 1, form Model 2.  You can find a list of the factor level groupings in `SAS_model2.txt` within the repo scripts folder.
 
-![Model Performance Statistics](images/ms_model2.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model2.jpg")
+```
+
 
 Model 3 was developed by dropping `GarageArea` because of it's near-zero estimate and adding `ExterCond` and `GarageQual` in order to capture additional quality-based information about the home.  This led to improved test ASE and Kaggle scores in Model 3.
 
-![Model Performance Statistics](images/ms_model3.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model3.jpg")
+```
+
 
 Before adding complexity to the model via interaction terms or attempting to model discontinuities in variables, outliers must be accounted for, which is discussed in the following section.
 
@@ -197,8 +219,10 @@ Figure 3 above revealed at least two significantly leveraged outliers that had v
 
 The excluded outliers, along with the reasons for doing so, are in Appendix D, Figure 7.  The resulting model fit statistics are below (Model 4).
 
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model4.jpg")
+```
 
-![Model Performance Statistics](images/ms_model4.jpg)
 
 ### Model Selection: Interaction Terms and Indicator Variables
 
@@ -216,15 +240,23 @@ By manually trying potential interactions and examining fit statistics, the foll
 
 The Model Performance Statistics table is updated with Model 5, which includes the two interactions listed here.
 
-![Model Performance Statistics](images/ms_model5.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model5.jpg")
+```
 
 AFter this, two indicator terms (`idxhasNoFB1` and `idxhasNoWD`) were included to allow increased flexibility in the parameterizations of the `BsmtFinSF1*idxhasFB1` and `WoodDeckSF*idxhasWD` interactions that were in Models 1-3.  This essentially allowed for homes without these features to be fit to a separate parameter so that the polynomial fits represent homes that actually have the feature.
 
-![Model Performance Statistics](images/ms_model6.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model6.jpg")
+```
+
 
 Finally, YearBuilt was converted into a piecewise interaction with an old vs new indicator so that we can allow for differing polynomial regression slopes based on whether homes are built after 2000.  This represents the final set of predictors, shown in model 7.  This model also includes an optimized regrouping of the MSSubClass variable.
 
-![Model Performance Statistics](images/ms_model7.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/ms_model7.jpg")
+```
+
 
 ###Top Models
 
@@ -232,7 +264,9 @@ Models 4, 3, and 2 had the top test ASE scores, and models 7, 6, and 5 had the t
 
 The figure below is a screenshot of the top Kaggle score received.  The R code in appendix C and SAS code in appendix D can recreate the CSV file submitted to Kaggle.  The CSV file itself is also located in the appendix folder of this repo.
 
-![Final Kaggle Score](images/kaggle.jpg)
+```{r out.width='500pt'}
+knitr::include_graphics("images/kaggle.jpg")
+```
 
 ### Additional Improvements
 
@@ -277,15 +311,14 @@ cat(readLines('scripts/SAS_Model7.txt'), sep = '\n')
 ```
 ## Appendix D: Extra Figures
 
+```{r out.width='500pt'}
+knitr::include_graphics("images/modelterms_assumptions.jpg")
+knitr::include_graphics("images/ms_fa_comb1.jpg")
+knitr::include_graphics("images/ms_fa_comb2.jpg")
+knitr::include_graphics("images/outlier_list.jpg")
+knitr::include_graphics("images/correlations.jpg")
 
-![Predictors used in assumption validation model](images/modelterms_assumptions.jpg)
-
-![Model Predictors and Associated Scores](images/ms_fa_comb1.jpg) 
-
-![Model Predictors and Associated Scores](images/ms_fa_comb2.jpg)
+```
 
 
-![Outliers Removed](images/outlier_list.jpg)
-
-![Linear Correlations in Training Data Sample](images/correlations.jpg)
 
