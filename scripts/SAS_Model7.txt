@@ -46,7 +46,7 @@ CASE WHEN OverallCond in (1,2,3) THEN 3
 YearBuilt,
 YearRemodAdd,
 RoofStyle,
-CASE WHEN Exterior1st <> 'BrkFace' then 'Other'
+CASE WHEN Exterior1st not in ('BrkFace','AsbShng') then 'Other'
 	ELSE Exterior1st END as Exterior1st,
 Exterior2nd,
 MasVnrType,
