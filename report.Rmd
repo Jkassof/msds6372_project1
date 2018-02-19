@@ -1,7 +1,7 @@
 ---
 title: "Ames Iowa House Prediction Project"
 author: "Jordan Kassof and Jose Torres"
-date: "2/11/2018"
+date: "2/17/2018"
 output:
   pdf_document:
     toc: true
@@ -119,7 +119,7 @@ ggplot(td[-1,], aes(estimate, term, color = term)) +
     ggtitle("OLS Parameter Estimates (95% confidence intervals)",
             subtitle = "Intercept Estimate Outside of Axis") +
     theme(legend.position = 'none',
-          axis.text.y  = element_text(size=6, margin = margin(20,20,20,20)))
+          axis.text.y  = element_text(size=6))
 ```
 
 The neighborhood variable has quite a lot of levels, but we can get an idea here for all the parameters estimates and a 95% confidence interval. Let's take a closer look at the five variables with the largest coefficient estimates.
@@ -277,18 +277,15 @@ cat(readLines('scripts/SAS_Model7.txt'), sep = '\n')
 ```
 ## Appendix D: Extra Figures
 
-Figure 2. Predictors used in assumption validation model
 
-![Figure 2. Predictors used in assumption validation model](images/modelterms_assumptions.jpg)
+![Predictors used in assumption validation model](images/modelterms_assumptions.jpg)
 
-Figure 6. Model Predictors and Associated Scores
+![Model Predictors and Associated Scores](images/ms_fa_comb1.jpg) 
 
-![](images/ms_fa_comb1.jpg) ![](images/ms_fa_comb2.jpg)
+![Model Predictors and Associated Scores](images/ms_fa_comb2.jpg)
 
-Figure 7. Outliers Removed
 
-![Figure 7. Outliers Removed](images/outlier_list.jpg)
+![Outliers Removed](images/outlier_list.jpg)
 
-Figure 8. Linear Correlations in Training Data Sample
-![Figure 8. Linear Correlations in Training Data Sample](images/correlations.jpg)
+![Linear Correlations in Training Data Sample](images/correlations.jpg)
 
