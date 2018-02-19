@@ -11,8 +11,8 @@ test_drop = c('LandContour','Utilities','LandSlope','Condition2',
                  'SaleType','Street','RoofMatl','X3SsnPorch','PoolQC', 'Fence',
                  'MiscFeature', 'Alley', 'Functional')
 
-train = train[, !(names(train) %in% train_drop)]
-test = test[, !(names(test) %in% test_drop)]
+train.Clean = train[, !(names(train) %in% train_drop)]
+test.Clean = test[, !(names(test) %in% test_drop)]
 
 #Fix column names
 names(train.Clean)[names(train.Clean)=='X1stFlrSF'] = 'FirstFlrSF'

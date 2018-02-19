@@ -224,10 +224,3 @@ PROC SQL;
 	FROM work.estPrice
 	WHERE Id > 1460);
 RUN;
-
-PROC SQL;
-	CREATE TABLE work.estprice_kaggle AS (
-	SELECT Id, exp(SalePrice) as ActualSalePrice, exp(SalePrice2) as PredSalePrice
-	FROM work.estPrice
-	WHERE Id <= 1460);
-RUN;

@@ -61,8 +61,8 @@ models <- map(model_dfs, model_fit) %>%
 
 # Add NAmes as a level because it shows up in the test
 # data and not the training data
-models$location$xlevels$Neighborhood <- 
-  c(models$location$xlevels$Neighborhood, "NAmes")
+#models$location$xlevels$Neighborhood <- 
+#  c(models$location$xlevels$Neighborhood, "NAmes")
 
 # Map the broom::tidy function across our models to get parameter
 # estimates in a tidy data frame
