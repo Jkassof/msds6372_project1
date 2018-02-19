@@ -6,7 +6,10 @@ output:
   rmdformats::readthedown:
     highlight: kate
   pdf_document:
-    toc: true
+    toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
 ---
 
 
@@ -149,7 +152,7 @@ Because of the high number of possible explanatory variables, an initial regress
 
 The following 4 models are compared to identify most common predictors to use for assumption review.  We will use the SPLIT option in SAS to allow for each factor level to enter or exit the model independently.
 
-```{r fig.align='center'}
+```{r fig.align='center', out.width='300pt'}
 knitr::include_graphics("images/prelim_model_assumptions.jpg")
 ```
 
@@ -159,7 +162,7 @@ Since the second model, based on selecting according to lowest BIC, has the fewe
 
 The residuals displayed in the panel below show excellent conformity with the constant variance and normally-distributed residual assumptions.  There is some evidence of outlier presence in the studentized residual vs predicted value plot (Row 1, Column 2), which will be addressed in the section below on outlier analysis.  We also assumed that the homes included in the training set are independent.  More on this is discussed in the section `Additional Improvements` below.
 
-```{r fig.align='center'}
+```{r fig.align='center', out.width='400pt'}
 knitr::include_graphics("images/residual_diags.JPG")
 ```
 
