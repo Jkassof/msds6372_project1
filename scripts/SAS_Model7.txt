@@ -46,14 +46,14 @@ CASE WHEN OverallCond in (1,2,3) THEN 3
 YearBuilt,
 YearRemodAdd,
 RoofStyle,
-CASE WHEN Exterior1st not in ('BrkFace','AsbShng') then 'Other'
+CASE WHEN Exterior1st not in ('BrkFace','AsbShng', 'Plywood', ) then 'Other'
 	ELSE Exterior1st END as Exterior1st,
 Exterior2nd,
 MasVnrType,
 MasVnrArea,
-CASE WHEN ExterQual <> 'TA' THEN 'Other'
+CASE WHEN ExterQual not in ('TA','Fa', 'Ex') THEN 'Other'
 	ELSE ExterQual END as ExterQual,
-CASE WHEN ExterCond <> 'Fa' THEN 'Other'
+CASE WHEN ExterCond not in ('Fa','EX') THEN 'Other'
 	ELSE ExterCond END as ExterCond,
 CASE WHEN Foundation in ('Wood','BrkTil') THEN 'BrkTil'
 	ELSE Foundation END as Foundation,
@@ -94,10 +94,10 @@ CASE WHEN KitchenQual in ('Fa','TA', 'Gd') THEN 'TA'
 	ELSE KitchenQual END as KitchenQual,
 CASE WHEN TotRmsAbvGrd > 10 THEN 10
 	ELSE TotRmsAbvGrd END as TotRmsAbvGrd,
-CASE WHEN Fireplaces > 2 THEN 2
+CASE WHEN Fireplaces > 3 THEN 2
 	ELSE Fireplaces END as Fireplaces,
 FireplaceQu,
-CASE WHEN GarageType not in ('Detchd','Attchd') THEN 'Other'
+CASE WHEN GarageType not in ('Detchd','Attchd', 'CarPort', 'BuiltIn') THEN 'Other'
 	ELSE GarageType END as GarageType,
 GarageYrBlt,
 GarageFinish,
@@ -131,6 +131,7 @@ CASE WHEN idxhasFB2 = 1 THEN 0 ELSE 1 END as idxhasNoFB2,
 idxhasB,
 CASE WHEN idxhasB = 1 THEN 0 ELSE 1 END as idxhasNoB,
 idxhasSF,
+CASE WHEN idxhasSF = 0 THEN 0 ELSE 1 END as idxhasNoSF,
 idxhasPool,
 idxhasLF,
 CASE WHEN idxhasLF = 1 THEN 0 ELSE 1 END as idxhasNoLF,
@@ -190,6 +191,7 @@ idxhasNoWD continuous
 YearBuilt*idxisOld continuous
 YearBuilt*idxisNew continuous
 idxisNew continuous
+SecFlrSF*idxhasSF continuous
 ;
 RUN;
 
@@ -213,7 +215,7 @@ run;
 proc GLMSELECT DATA=work.saleprice_dm1 seed=12345;
 		class &classList;
 		partition fraction(test=.6);
-		model SalePrice = &modelList / SELECTION=stepwise(include=39 stop=39);
+		model SalePrice = &modelList / SELECTION=stepwise(include=40 stop=40);
 		*modelaverage nsamples=500 REFIT;
 		*output out=work.estPriceMA predicted=SalePrice2;
 run; 
@@ -223,4 +225,11 @@ PROC SQL;
 	SELECT Id, exp(SalePrice2) as SalePrice
 	FROM work.estPrice
 	WHERE Id > 1460);
+RUN;
+
+PROC SQL;
+	CREATE TABLE work.estprice_kaggle AS (
+	SELECT Id, exp(SalePrice) as ActualSalePrice, exp(SalePrice2) as PredSalePrice
+	FROM work.estPrice
+	WHERE Id <= 1460);
 RUN;
